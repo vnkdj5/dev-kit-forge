@@ -50,6 +50,24 @@ export default function DecimalBinaryTool() {
     }
   }, [decimal]);
 
+  // Initialize bits on first render
+  useEffect(() => {
+    if (bits.length === 0) {
+      const num = BigInt(decimal);
+      const binaryStr = num.toString(2).padStart(64, '0');
+      const bitData: BitData[] = binaryStr
+        .split('')
+        .reverse()
+        .map((bit, index) => ({
+          position: index,
+          value: parseInt(bit) as 0 | 1,
+          byteIndex: Math.floor(index / 8),
+          bitInByte: index % 8
+        }));
+      setBits(bitData);
+    }
+  }, []);
+
   const handleDecimalChange = (value: string) => {
     if (value === "") {
       setDecimal("");
@@ -197,7 +215,7 @@ export default function DecimalBinaryTool() {
             
             {/* Bit Grid - 8 bytes, 8 bits each */}
             <div className="space-y-3">
-              {[7, 6, 5, 4, 3, 2, 1, 0].map((byteIndex) => {
+              {bits.length > 0 && [7, 6, 5, 4, 3, 2, 1, 0].map((byteIndex) => {
                 const byteBits = getBitsForByte(byteIndex);
                 return (
                   <div key={byteIndex} className="flex items-center gap-2">
@@ -231,7 +249,13 @@ export default function DecimalBinaryTool() {
                     </div>
                     {/* Byte separator for readability */}
                     <div className="text-xs text-muted-foreground ml-2">
-                      {parseInt(getBitsForByte(byteIndex).map(b => b.value).join(''), 2)}
+                      {(() => {
+                        const byteBits = getBitsForByte(byteIndex);
+                        if (byteBits.length === 0) return '0';
+                        const binaryString = byteBits.map(b => b.value).join('');
+                        const byteValue = parseInt(binaryString, 2);
+                        return isNaN(byteValue) ? '0' : byteValue.toString();
+                      })()}
                     </div>
                   </div>
                 );
