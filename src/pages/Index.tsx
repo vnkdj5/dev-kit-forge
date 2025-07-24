@@ -15,14 +15,16 @@ import {
   ArrowRight,
   Zap,
   Terminal,
-  Layers
+  Layers,
+  FileText
 } from "lucide-react";
 
 const iconMap = {
   Binary,
   Code,
   Link,
-  Braces
+  Braces,
+  FileText
 };
 
 const categoryLabels = {
@@ -135,7 +137,7 @@ const Index = () => {
             {/* Tools Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredTools.map((tool) => {
-                const IconComponent = iconMap[tool.icon as keyof typeof iconMap];
+                const IconComponent = iconMap[tool.icon as keyof typeof iconMap] || Code;
                 return (
                   <Card 
                     key={tool.id} 

@@ -9,7 +9,8 @@ import {
   Binary,
   Code,
   Link,
-  Braces
+  Braces,
+  FileText
 } from "lucide-react";
 
 import {
@@ -32,6 +33,7 @@ const iconMap = {
   Code,
   Link,
   Braces,
+  FileText,
   Home,
   History,
   Search,
@@ -120,7 +122,7 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {recentTools.slice(0, 3).map((tool) => {
-                  const IconComponent = iconMap[tool!.icon as keyof typeof iconMap];
+                  const IconComponent = iconMap[tool!.icon as keyof typeof iconMap] || Code;
                   return (
                     <SidebarMenuItem key={tool!.id}>
                       <SidebarMenuButton asChild>
@@ -158,7 +160,7 @@ export function AppSidebar() {
                   <SidebarGroupContent>
                     <SidebarMenu>
                       {categoryTools.map((tool) => {
-                        const IconComponent = iconMap[tool.icon as keyof typeof iconMap];
+                        const IconComponent = iconMap[tool.icon as keyof typeof iconMap] || Code;
                         return (
                           <SidebarMenuItem key={tool.id}>
                             <SidebarMenuButton asChild>
