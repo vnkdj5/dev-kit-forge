@@ -3,7 +3,7 @@ import { ToolHistory } from '@/types/tools';
 export { type ToolHistory } from '@/types/tools';
 
 const HISTORY_KEY = 'dev-tools-history';
-const MAX_HISTORY_ITEMS = 100;
+const MAX_HISTORY_ITEMS = 10;
 
 export const getHistory = (): ToolHistory[] => {
   try {

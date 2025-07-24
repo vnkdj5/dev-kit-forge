@@ -38,6 +38,24 @@ export const tools: Tool[] = [
     icon: 'Braces',
     component: lazy(() => import('@/tools/json-formatter/JsonFormatterTool')),
     keywords: ['json', 'format', 'beautify', 'validate', 'minify', 'pretty']
+  },
+  {
+    id: 'text-to-json',
+    name: 'Text to JSON Converter',
+    description: 'Convert plain text to JSON format with prettification',
+    category: 'conversion',
+    icon: 'FileText',
+    component: lazy(() => import('@/tools/text-to-json/TextToJsonTool')),
+    keywords: ['text', 'json', 'convert', 'plain', 'string', 'format']
+  },
+  {
+    id: 'html-viewer',
+    name: 'HTML Viewer & Editor',
+    description: 'Edit HTML code with live preview and real-time updates',
+    category: 'formatting',
+    icon: 'Code',
+    component: lazy(() => import('@/tools/html-viewer/HtmlViewerTool')),
+    keywords: ['html', 'preview', 'editor', 'live', 'viewer', 'render']
   }
 ];
 
