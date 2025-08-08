@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { useParams, Navigate } from "react-router-dom";
+import { useParams, Navigate, useLocation } from "react-router-dom";
 import { getToolById } from "@/lib/tool-registry";
 import { HistoryPanel } from "@/components/layout/HistoryPanel";
 import { Card } from "@/components/ui/card";
@@ -7,6 +7,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ToolPage() {
   const { toolId } = useParams<{ toolId: string }>();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const isEmbedded = searchParams.get('embedded') === 'true' || location.pathname.startsWith('/embed/');
+  const hideHistory = searchParams.get('hideHistory') === 'true' || location.pathname.startsWith('/embed/');
+  
+
   
   if (!toolId) {
     return <Navigate to="/" replace />;
@@ -21,18 +27,20 @@ export default function ToolPage() {
   const ToolComponent = tool.component;
 
   return (
-    <div className="flex h-full">
+    <div className={`flex h-full ${isEmbedded ? 'p-0' : ''}`}>
       {/* Main tool area */}
-      <div className="flex-1 p-6 overflow-auto">
+      <div className={`flex-1 overflow-auto ${isEmbedded ? 'p-4' : 'p-6'}`}>
         <Suspense fallback={<ToolSkeleton />}>
           <ToolComponent />
         </Suspense>
       </div>
       
-      {/* History sidebar */}
-      <div className="w-80 border-l border-border p-4">
-        <HistoryPanel currentToolId={toolId} className="h-full" />
-      </div>
+      {/* History sidebar - completely hidden in embedded mode or when hideHistory is true */}
+      {(isEmbedded || hideHistory) ? null : (
+        <div className="w-80 border-l border-border p-4">
+          <HistoryPanel currentToolId={toolId} className="h-full" />
+        </div>
+      )}
     </div>
   );
 }

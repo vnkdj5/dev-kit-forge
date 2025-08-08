@@ -15,7 +15,23 @@ const queryClient = new QueryClient();
 // Layout wrapper to conditionally show sidebar
 function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const showSidebar = location.pathname.startsWith('/tool/') || location.pathname === '/history';
+  const searchParams = new URLSearchParams(location.search);
+  const isEmbedded = searchParams.get('embedded') === 'true' || location.pathname.startsWith('/embed/');
+  const hideSidebar = searchParams.get('hideSidebar') === 'true' || location.pathname.startsWith('/embed/');
+  const hideHeader = searchParams.get('hideHeader') === 'true' || location.pathname.startsWith('/embed/');
+  
+  const showSidebar = (location.pathname.startsWith('/tool/') || location.pathname === '/history') && !hideSidebar;
+
+  // If embedded mode, show minimal layout
+  if (isEmbedded) {
+    return (
+      <div className="min-h-screen bg-background">
+        <main className="w-full h-full">
+          {children}
+        </main>
+      </div>
+    );
+  }
 
   if (!showSidebar) {
     return <>{children}</>;
@@ -26,10 +42,12 @@ function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-12 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <SidebarTrigger className="ml-4" />
-          </header>
-          <main className="flex-1 overflow-hidden">
+          {!hideHeader && (
+            <header className="h-12 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+              <SidebarTrigger className="ml-4" />
+            </header>
+          )}
+          <main className={`overflow-hidden ${hideHeader ? 'flex-1' : 'flex-1'}`}>
             {children}
           </main>
         </div>
@@ -49,6 +67,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/tool/:toolId" element={<ToolPage />} />
             <Route path="/history" element={<HistoryPage />} />
+            <Route path="/embed/tool/:toolId" element={<ToolPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
