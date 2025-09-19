@@ -1,9 +1,10 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { useParams, Navigate, useLocation } from "react-router-dom";
 import { getToolById } from "@/lib/tool-registry";
 import { HistoryPanel } from "@/components/layout/HistoryPanel";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { trackEmbeddedUsage } from "@/lib/analytics";
 
 export default function ToolPage() {
   const { toolId } = useParams<{ toolId: string }>();
@@ -11,6 +12,13 @@ export default function ToolPage() {
   const searchParams = new URLSearchParams(location.search);
   const isEmbedded = searchParams.get('embedded') === 'true' || location.pathname.startsWith('/embed/');
   const hideHistory = searchParams.get('hideHistory') === 'true' || location.pathname.startsWith('/embed/');
+
+  // Track embedded usage
+  useEffect(() => {
+    if (isEmbedded && toolId) {
+      trackEmbeddedUsage(toolId);
+    }
+  }, [isEmbedded, toolId]);
   
 
   
