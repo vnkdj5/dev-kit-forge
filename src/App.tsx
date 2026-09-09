@@ -43,11 +43,11 @@ function AppLayout({ children }: { children: React.ReactNode }) {
         <AppSidebar />
         <div className="flex-1 flex flex-col">
           {!hideHeader && (
-            <header className="h-12 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <header className="h-12 flex items-center border-b bg-code-background">
               <SidebarTrigger className="ml-4" />
             </header>
           )}
-          <main className={`overflow-hidden ${hideHeader ? 'flex-1' : 'flex-1'}`}>
+          <main className="min-h-0 flex-1 overflow-auto">
             {children}
           </main>
         </div>

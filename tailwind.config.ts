@@ -18,6 +18,11 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['DM Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				display: ['Space Grotesk', 'DM Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'monospace'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -78,9 +83,6 @@ export default {
 				'glow': '0 0 20px hsl(var(--primary) / 0.3)',
 				'soft': '0 2px 8px 0 rgb(0 0 0 / 0.1)',
 				'elevated': '0 8px 32px 0 rgb(0 0 0 / 0.2)'
-			},
-			fontFamily: {
-				mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'monospace'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Copy, ArrowUpDown } from "lucide-react";
+import { Copy, ClipboardPaste, Trash2 } from "lucide-react";
 import { addToHistory } from "@/lib/history";
 import { useToast } from "@/hooks/use-toast";
+import { ToolWorkspace, WorkspacePane, editorClassName } from "@/components/tools/ToolWorkspace";
 
 export default function Base64Tool() {
   const [input, setInput] = useState("");
@@ -73,71 +72,47 @@ export default function Base64Tool() {
     setOutput("");
   };
 
+  const pasteInput = async () => {
+    try {
+      setInput(await navigator.clipboard.readText());
+    } catch {
+      toast({ title: "Paste unavailable", description: "Use your keyboard paste shortcut instead.", variant: "destructive" });
+    }
+  };
+
+  const clear = () => {
+    setInput("");
+    setOutput("");
+  };
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Base64 Encoder/Decoder</h1>
-        <p className="text-muted-foreground mt-1">
-          Encode and decode Base64 strings
-        </p>
-      </div>
-
-      <div className="flex items-center gap-4">
-        <Badge variant={mode === 'encode' ? 'default' : 'secondary'}>
-          {mode === 'encode' ? 'Encoding Mode' : 'Decoding Mode'}
-        </Badge>
-        <Button variant="outline" onClick={switchMode}>
-          <ArrowUpDown className="h-4 w-4 mr-2" />
-          Switch to {mode === 'encode' ? 'Decode' : 'Encode'}
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="font-medium">
-                {mode === 'encode' ? 'Plain Text' : 'Base64 String'}
-              </label>
-            </div>
+    <ToolWorkspace
+      title="Base64 Encoder / Decoder"
+      description="Encode or decode Base64 text locally in your browser"
+      actions={<><div className="flex rounded-md border border-border bg-secondary p-0.5"><Button size="sm" variant={mode === "encode" ? "default" : "ghost"} onClick={() => mode !== "encode" && switchMode()}>Encode</Button><Button size="sm" variant={mode === "decode" ? "default" : "ghost"} onClick={() => mode !== "decode" && switchMode()}>Decode</Button></div><Button variant="ghost" size="sm" onClick={clear}><Trash2 />Clear</Button><Button size="sm" onClick={handleProcess} disabled={!input}>{mode === "encode" ? "Encode" : "Decode"}</Button></>}
+      status={output ? "Complete" : "Ready"}
+    >
+      <div className="tool-pane-grid">
+        <WorkspacePane label={mode === 'encode' ? 'Plain text input' : 'Base64 input'} actions={<Button variant="ghost" size="sm" onClick={pasteInput}><ClipboardPaste />Paste</Button>}>
             <Textarea
+              aria-label={mode === 'encode' ? 'Plain text input' : 'Base64 input'}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={mode === 'encode' ? 'Enter text to encode...' : 'Enter Base64 to decode...'}
-              className="min-h-32 font-mono text-sm"
+              className={editorClassName}
+              spellCheck={false}
             />
-            <Button onClick={handleProcess} className="w-full">
-              {mode === 'encode' ? 'Encode to Base64' : 'Decode from Base64'}
-            </Button>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="font-medium">
-                {mode === 'encode' ? 'Base64 Result' : 'Decoded Text'}
-              </label>
-              {output && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => copyValue(output)}
-                >
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copy
-                </Button>
-              )}
-            </div>
+        </WorkspacePane>
+        <WorkspacePane label={mode === 'encode' ? 'Base64 result' : 'Decoded text'} actions={<Button variant="ghost" size="sm" onClick={() => copyValue(output)} disabled={!output}><Copy />Copy</Button>} className="bg-code-background">
             <Textarea
+              aria-label={mode === 'encode' ? 'Base64 result' : 'Decoded text'}
               value={output}
               readOnly
               placeholder="Result will appear here..."
-              className="min-h-32 font-mono text-sm bg-muted/30"
+              className={editorClassName}
             />
-          </div>
-        </Card>
+        </WorkspacePane>
       </div>
-    </div>
+    </ToolWorkspace>
   );
 }

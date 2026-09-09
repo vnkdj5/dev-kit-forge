@@ -1,10 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Copy, Code, Eye, Download } from "lucide-react";
+import { Copy, ClipboardPaste, Download, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { addToHistory } from "@/lib/history";
+import { ToolWorkspace, WorkspacePane, editorClassName } from "@/components/tools/ToolWorkspace";
 
 export default function HtmlViewerTool() {
   const [input, setInput] = useState(`<!DOCTYPE html>
@@ -125,64 +125,26 @@ export default function HtmlViewerTool() {
     }
   }, [input, toast]);
 
-  return (
-    <div className="container mx-auto p-6 max-w-7xl">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">HTML Viewer & Editor</h1>
-        <p className="text-muted-foreground">
-          Edit HTML code and see live preview with real-time updates
-        </p>
-      </div>
+  const handlePaste = useCallback(async () => {
+    try { setInput(await navigator.clipboard.readText()); }
+    catch { toast({ title: "Paste unavailable", description: "Use your keyboard paste shortcut instead.", variant: "destructive" }); }
+  }, [toast]);
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-200px)]">
-        <Card className="flex flex-col">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Code className="h-5 w-5" />
-              HTML Editor
-            </CardTitle>
-            <CardDescription>
-              Edit your HTML code here
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col space-y-4">
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleCopy}>
-                <Copy className="h-4 w-4 mr-1" />
-                Copy
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleDownload}>
-                <Download className="h-4 w-4 mr-1" />
-                Download
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleBeautify}>
-                Beautify
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleClear}>
-                Clear
-              </Button>
-            </div>
+  return (
+    <ToolWorkspace title="HTML Viewer & Editor" description="Edit HTML and see the rendered page update live" status={input ? "Preview live" : "Ready"} actions={<><Button variant="ghost" size="sm" onClick={handleBeautify}>Beautify</Button><Button variant="ghost" size="sm" onClick={handleClear}><Trash2 />Clear</Button><Button size="sm" onClick={handleDownload} disabled={!input}><Download />Export HTML</Button></>}>
+      <div className="tool-pane-grid">
+        <WorkspacePane label="HTML editor" actions={<><Button variant="ghost" size="sm" onClick={handlePaste}><ClipboardPaste />Paste</Button><Button variant="ghost" size="sm" onClick={handleCopy} disabled={!input}><Copy />Copy</Button></>}>
             <Textarea
+              aria-label="HTML editor"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Enter your HTML code here..."
-              className="flex-1 min-h-0 font-mono text-sm resize-none"
+              className={editorClassName}
+              spellCheck={false}
             />
-          </CardContent>
-        </Card>
-
-        <Card className="flex flex-col">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5" />
-              Live Preview
-            </CardTitle>
-            <CardDescription>
-              Real-time HTML rendering
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col">
-            <div className="flex-1 border border-border rounded-lg overflow-hidden">
+        </WorkspacePane>
+        <WorkspacePane label="Live preview" className="bg-code-background">
+            <div className="h-full min-h-[22rem] overflow-hidden bg-foreground lg:min-h-0">
               <iframe
                 ref={iframeRef}
                 className="w-full h-full border-0"
@@ -190,9 +152,8 @@ export default function HtmlViewerTool() {
                 sandbox="allow-same-origin allow-scripts"
               />
             </div>
-          </CardContent>
-        </Card>
+        </WorkspacePane>
       </div>
-    </div>
+    </ToolWorkspace>
   );
 }
