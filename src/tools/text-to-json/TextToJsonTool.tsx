@@ -1,11 +1,11 @@
 import { useState, useCallback } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Copy, FileText, AlertCircle } from "lucide-react";
+import { Copy, ClipboardPaste, AlertCircle, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { addToHistory } from "@/lib/history";
+import { ToolWorkspace, WorkspacePane, editorClassName } from "@/components/tools/ToolWorkspace";
 
 export default function TextToJsonTool() {
   const [input, setInput] = useState("");
@@ -65,89 +65,39 @@ export default function TextToJsonTool() {
     setError("");
   }, []);
 
-  return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Text to JSON Converter</h1>
-        <p className="text-muted-foreground">
-          Convert plain text to JSON format or prettify existing JSON
-        </p>
-      </div>
+  const handlePaste = useCallback(async () => {
+    try { setInput(await navigator.clipboard.readText()); }
+    catch { toast({ title: "Paste unavailable", description: "Use your keyboard paste shortcut instead.", variant: "destructive" }); }
+  }, [toast]);
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Input Text
-            </CardTitle>
-            <CardDescription>
-              Enter plain text or existing JSON to convert
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+  return (
+    <ToolWorkspace title="Text to JSON Converter" description="Convert plain text to JSON or normalize existing JSON" status={error ? "Conversion error" : output ? "Valid JSON" : "Ready"} actions={<><Button variant={prettify ? "secondary" : "ghost"} size="sm" onClick={() => setPrettify(!prettify)}>Prettify {prettify ? "On" : "Off"}</Button><Button variant="ghost" size="sm" onClick={handleClear}><Trash2 />Clear</Button><Button size="sm" onClick={handleConvert} disabled={!input}>Convert</Button></>}>
+      <div className="tool-pane-grid">
+        <WorkspacePane label="Input text" actions={<Button variant="ghost" size="sm" onClick={handlePaste}><ClipboardPaste />Paste</Button>}>
             <Textarea
+              aria-label="Input text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onInput={handleConvert}
               placeholder="Enter your text here..."
-              className="min-h-[300px] font-mono text-sm"
+              className={editorClassName}
+              spellCheck={false}
             />
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPrettify(!prettify)}
-              >
-                {prettify ? "Prettify: On" : "Prettify: Off"}
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleClear}>
-                Clear
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              JSON Output
-              {output && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleCopy(output)}
-                  className="ml-auto"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              )}
-            </CardTitle>
-            <CardDescription>
-              Generated JSON output
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        </WorkspacePane>
+        <WorkspacePane label="JSON output" actions={<><Badge variant={output ? "secondary" : "outline"}>{output ? "Valid JSON" : "Waiting"}</Badge><Button variant="ghost" size="sm" onClick={() => handleCopy(output)} disabled={!output}><Copy />Copy</Button></>} className="bg-code-background">
             {error ? (
-              <div className="flex items-center gap-2 p-4 border border-destructive/20 bg-destructive/10 rounded-lg">
+              <div className="m-5 flex items-center gap-2 rounded-md border border-destructive/20 bg-destructive/10 p-4">
                 <AlertCircle className="h-5 w-5 text-destructive" />
                 <span className="text-sm text-destructive">{error}</span>
               </div>
             ) : (
-              <div className="relative">
-                <pre className="bg-code-background border border-code-border rounded-lg p-4 text-sm font-mono overflow-auto min-h-[300px] whitespace-pre-wrap">
+              <div className="h-full min-h-[22rem] lg:min-h-0">
+                <pre className="h-full overflow-auto whitespace-pre-wrap p-5 font-mono text-sm leading-6 text-foreground">
                   {output || "JSON output will appear here..."}
                 </pre>
-                {output && (
-                  <Badge className="absolute top-2 right-2" variant="secondary">
-                    Valid JSON
-                  </Badge>
-                )}
               </div>
             )}
-          </CardContent>
-        </Card>
+        </WorkspacePane>
       </div>
-    </div>
+    </ToolWorkspace>
   );
 }

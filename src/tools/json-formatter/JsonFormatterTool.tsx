@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Check, X, Minimize2, Maximize2 } from "lucide-react";
+import { Copy, Check, X, ClipboardPaste, Trash2 } from "lucide-react";
 import { addToHistory } from "@/lib/history";
 import { useToast } from "@/hooks/use-toast";
+import { ToolWorkspace, WorkspacePane, editorClassName } from "@/components/tools/ToolWorkspace";
 
 export default function JsonFormatterTool() {
   const [input, setInput] = useState("");
@@ -93,84 +93,59 @@ export default function JsonFormatterTool() {
     );
   };
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">JSON Formatter</h1>
-        <p className="text-muted-foreground mt-1">
-          Format, validate and beautify JSON data
-        </p>
-      </div>
+  const pasteInput = async () => {
+    try { setInput(await navigator.clipboard.readText()); setIsValid(null); }
+    catch { toast({ title: "Paste unavailable", description: "Use your keyboard paste shortcut instead.", variant: "destructive" }); }
+  };
 
-      <div className="flex items-center gap-4">
-        <div className="flex gap-2">
+  const clear = () => { setInput(""); setOutput(""); setIsValid(null); };
+
+  return (
+    <ToolWorkspace title="JSON Formatter" description="Format, validate, and minify JSON data" status={isValid === false ? "Invalid JSON" : output ? "Valid JSON" : "Ready"} actions={<>
+        <div className="flex rounded-md border border-border bg-secondary p-0.5">
           <Button
             variant={mode === 'format' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setMode('format')}
           >
-            <Maximize2 className="h-4 w-4 mr-2" />
             Format
           </Button>
           <Button
-            variant={mode === 'minify' ? 'default' : 'outline'}
+            variant={mode === 'minify' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setMode('minify')}
           >
-            <Minimize2 className="h-4 w-4 mr-2" />
             Minify
           </Button>
         </div>
         {getValidationBadge()}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="font-medium">Input JSON</label>
-            </div>
+        <Button variant="ghost" size="sm" onClick={clear}><Trash2 />Clear</Button>
+        <Button size="sm" onClick={handleProcess} disabled={!input}>{mode === 'format' ? 'Format' : 'Minify'}</Button>
+      </>}>
+      <div className="tool-pane-grid">
+        <WorkspacePane label="Input JSON" actions={<Button variant="ghost" size="sm" onClick={pasteInput}><ClipboardPaste />Paste</Button>}>
             <Textarea
+              aria-label="Input JSON"
               value={input}
               onChange={(e) => {
                 setInput(e.target.value);
                 setIsValid(null);
               }}
               placeholder='Enter JSON to format...\nExample: {"name": "John", "age": 30}'
-              className="min-h-48 font-mono text-sm"
+              className={editorClassName}
+              spellCheck={false}
             />
-            <Button onClick={handleProcess} className="w-full">
-              {mode === 'format' ? 'Format JSON' : 'Minify JSON'}
-            </Button>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="font-medium">
-                {mode === 'format' ? 'Formatted JSON' : 'Minified JSON'}
-              </label>
-              {output && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => copyValue(output)}
-                >
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copy
-                </Button>
-              )}
-            </div>
+        </WorkspacePane>
+        <WorkspacePane label={mode === 'format' ? 'Formatted JSON' : 'Minified JSON'} actions={<Button variant="ghost" size="sm" onClick={() => copyValue(output)} disabled={!output}><Copy />Copy</Button>} className="bg-code-background">
             <Textarea
+              aria-label={mode === 'format' ? 'Formatted JSON' : 'Minified JSON'}
               value={output}
               readOnly
               placeholder="Formatted result will appear here..."
-              className="min-h-48 font-mono text-sm bg-muted/30"
+              className={editorClassName}
             />
-          </div>
-        </Card>
+        </WorkspacePane>
       </div>
-    </div>
+    </ToolWorkspace>
   );
 }
