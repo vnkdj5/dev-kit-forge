@@ -1,6 +1,6 @@
 # Usability redesign
 
-- [ ] Add shared full-height tool workspace
-- [ ] Convert text tools to large split editors
-- [ ] Restyle the 64-bit converter workspace
-- [ ] Verify desktop and mobile usability
+- [x] Add shared full-height tool workspace
+- [x] Convert text tools to large split editors
+- [x] Restyle the 64-bit converter workspace
+- [x] Verify desktop and mobile usability
