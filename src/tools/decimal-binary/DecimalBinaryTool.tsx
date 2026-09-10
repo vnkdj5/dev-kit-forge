@@ -147,7 +147,6 @@ export default function DecimalBinaryTool() {
                 </Button>
               </div>
             </div>
-            </div>
             <div className="space-y-3 bg-code-background p-4">
               <div className="flex items-center justify-between"><label htmlFor="binary-value" className="text-xs font-semibold uppercase text-muted-foreground">Binary</label><Badge variant="outline">64 bits</Badge></div>
               <div className="flex gap-2">
