@@ -101,7 +101,7 @@ export default function HtmlViewerTool() {
           let indent = 0;
           for (let i = 0; i < index; i++) {
             const prevLine = array[i].trim();
-            if (prevLine.match(/<[^\/][^>]*[^\/]>$/)) indent++;
+            if (prevLine.match(/<[^/][^>]*[^/]>$/)) indent++;
             if (prevLine.match(/<\/[^>]+>$/)) indent--;
           }
           

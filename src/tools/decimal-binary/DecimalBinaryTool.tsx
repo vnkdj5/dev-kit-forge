@@ -15,14 +15,14 @@ interface BitData {
   bitInByte: number;
 }
 
+const MAX_64_BIT = BigInt("18446744073709551615");
+
 export default function DecimalBinaryTool() {
   const [decimal, setDecimal] = useState<string>("42");
   const [binary, setBinary] = useState<string>("");
   const [bits, setBits] = useState<BitData[]>([]);
   const [hoveredBit, setHoveredBit] = useState<number | null>(null);
   const { toast } = useToast();
-
-  const MAX_64_BIT = BigInt("18446744073709551615"); // 2^64 - 1
 
   useEffect(() => {
     try {
